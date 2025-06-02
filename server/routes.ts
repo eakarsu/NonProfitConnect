@@ -78,9 +78,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/projects/user', unifiedAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Get user ID from either multi-provider auth or Replit auth
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
       const projects = await storage.getProjectsByUser(userId);
       res.json(projects);
     } catch (error) {
@@ -89,7 +90,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/pending', isAuthenticated, async (req: any, res) => {
+  app.get('/api/projects/pending', unifiedAuth, async (req: any, res) => {
     try {
       const projects = await storage.getPendingReviews();
       res.json(projects);
@@ -99,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/approved', isAuthenticated, async (req: any, res) => {
+  app.get('/api/projects/approved', unifiedAuth, async (req: any, res) => {
     try {
       const projects = await storage.getApprovedProjects();
       
@@ -136,9 +137,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Review routes
-  app.post('/api/reviews', isAuthenticated, async (req: any, res) => {
+  app.post('/api/reviews', unifiedAuth, async (req: any, res) => {
     try {
-      const reviewerId = req.user.claims.sub;
+      const reviewerId = req.user.claims ? req.user.claims.sub : req.user.id;
       const validatedData = insertReviewSchema.parse(req.body);
       const review = await storage.createReview(validatedData, reviewerId);
       
@@ -195,9 +196,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stats routes
-  app.get('/api/stats/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/stats/user', unifiedAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
       const stats = await storage.getUserStats(userId);
       res.json(stats);
     } catch (error) {
@@ -206,9 +207,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/stats/reviewer', isAuthenticated, async (req: any, res) => {
+  app.get('/api/stats/reviewer', unifiedAuth, async (req: any, res) => {
     try {
-      const reviewerId = req.user.claims.sub;
+      const reviewerId = req.user.claims ? req.user.claims.sub : req.user.id;
       const stats = await storage.getReviewerStats(reviewerId);
       res.json(stats);
     } catch (error) {
@@ -217,9 +218,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/stats/investor', isAuthenticated, async (req: any, res) => {
+  app.get('/api/stats/investor', unifiedAuth, async (req: any, res) => {
     try {
-      const investorId = req.user.claims.sub;
+      const investorId = req.user.claims ? req.user.claims.sub : req.user.id;
       const stats = await storage.getInvestorStats(investorId);
       res.json(stats);
     } catch (error) {
@@ -229,9 +230,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notification routes
-  app.get('/api/notifications', isAuthenticated, async (req: any, res) => {
+  app.get('/api/notifications', unifiedAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
       const notifications = await storage.getNotificationsByUser(userId);
       res.json(notifications);
     } catch (error) {
