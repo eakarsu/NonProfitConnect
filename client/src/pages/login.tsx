@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Chrome, Github, Mail, Lock, User, UserCheck } from "lucide-react";
@@ -17,7 +18,7 @@ export default function Login() {
     password: "",
     firstName: "",
     lastName: "",
-    role: "applicant"
+    roles: ["applicant"]
   });
   const { toast } = useToast();
 
@@ -161,19 +162,46 @@ export default function Login() {
             )}
 
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="role">I want to join as</Label>
-                <Select name="role" value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
-                  <SelectTrigger>
-                    <UserCheck className="w-4 h-4 mr-2" />
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="applicant">Project Applicant - Submit funding requests</SelectItem>
-                    <SelectItem value="reviewer">Project Reviewer - Evaluate applications</SelectItem>
-                    <SelectItem value="investor">Investor - Fund approved projects</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-3">
+                <Label>I want to join as (select all that apply)</Label>
+                <div className="space-y-3">
+                  {[
+                    { value: "applicant", label: "Project Applicant", description: "Submit funding requests" },
+                    { value: "reviewer", label: "Project Reviewer", description: "Evaluate applications" },
+                    { value: "investor", label: "Investor", description: "Fund approved projects" }
+                  ].map((role) => (
+                    <div key={role.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={role.value}
+                        checked={formData.roles.includes(role.value)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              roles: [...prev.roles, role.value]
+                            }));
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              roles: prev.roles.filter(r => r !== role.value)
+                            }));
+                          }
+                        }}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor={role.value}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {role.label}
+                        </label>
+                        <p className="text-xs text-muted-foreground">
+                          {role.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
             
