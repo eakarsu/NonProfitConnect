@@ -102,11 +102,7 @@ export default function Applications() {
                 View Details
               </Button>
             </Link>
-            {project.status === "pending" && !showApplicant && (
-              <Button size="sm">
-                Review
-              </Button>
-            )}
+
           </div>
         </div>
       </CardContent>
