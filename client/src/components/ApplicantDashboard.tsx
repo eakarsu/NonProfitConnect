@@ -172,11 +172,6 @@ export default function ApplicantDashboard() {
                     <Button variant="ghost" size="sm">
                       View Details
                     </Button>
-                    {project.status === "pending" && (
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    )}
                   </div>
                 </div>
               ))}

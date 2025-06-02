@@ -4,17 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, Calendar, DollarSign, Target, User, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import AppHeader from "@/components/AppHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function ProjectDetails() {
   const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [investmentAmount, setInvestmentAmount] = useState('');
+  const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
   
   const { data: project, isLoading } = useQuery({
     queryKey: [`/api/projects/${id}`],
@@ -59,6 +65,46 @@ export default function ProjectDetails() {
       });
     },
   });
+
+  // Investment mutation
+  const investmentMutation = useMutation({
+    mutationFn: async ({ amount }: { amount: number }) => {
+      return await apiRequest('POST', '/api/investments', {
+        projectId: parseInt(id!),
+        amount
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Investment Successful",
+        description: "Your investment has been submitted successfully.",
+      });
+      setIsInvestmentModalOpen(false);
+      setInvestmentAmount('');
+      // Refresh investment data
+      queryClient.invalidateQueries({ queryKey: [`/api/investments/project/${id}`] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Investment Failed",
+        description: error.message || "Failed to submit investment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleInvestment = () => {
+    const amount = parseFloat(investmentAmount);
+    if (!amount || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid investment amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+    investmentMutation.mutate({ amount });
+  };
 
   if (isLoading) {
     return (
@@ -345,10 +391,49 @@ export default function ProjectDetails() {
                       </div>
                     </div>
                   ) : (
-                    <Button className="w-full">
-                      <DollarSign className="h-4 w-4 mr-2" />
-                      Invest in Project
-                    </Button>
+                    <Dialog open={isInvestmentModalOpen} onOpenChange={setIsInvestmentModalOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full">
+                          <DollarSign className="h-4 w-4 mr-2" />
+                          Invest in Project
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Invest in Project</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="amount">Investment Amount ($)</Label>
+                            <Input
+                              id="amount"
+                              type="number"
+                              placeholder="Enter amount..."
+                              value={investmentAmount}
+                              onChange={(e) => setInvestmentAmount(e.target.value)}
+                              min="1"
+                              step="1"
+                            />
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => setIsInvestmentModalOpen(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              className="flex-1"
+                              onClick={handleInvestment}
+                              disabled={investmentMutation.isPending}
+                            >
+                              {investmentMutation.isPending ? 'Processing...' : 'Invest'}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </CardContent>
               </Card>
