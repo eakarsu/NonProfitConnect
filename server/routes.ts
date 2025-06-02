@@ -241,7 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/notifications/:id/read', isAuthenticated, async (req, res) => {
+  app.patch('/api/notifications/:id/read', unifiedAuth, async (req, res) => {
     try {
       const notificationId = parseInt(req.params.id);
       await storage.markNotificationAsRead(notificationId);
