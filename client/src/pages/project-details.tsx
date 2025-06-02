@@ -34,7 +34,7 @@ export default function ProjectDetails() {
   // Review mutation
   const reviewMutation = useMutation({
     mutationFn: async ({ decision, comments }: { decision: 'approved' | 'rejected'; comments?: string }) => {
-      return await apiRequest('/api/reviews', 'POST', {
+      return await apiRequest('POST', '/api/reviews', {
         projectId: parseInt(id!),
         decision,
         comments: comments || ''
@@ -303,7 +303,7 @@ export default function ProjectDetails() {
                         }}
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
-                        {reviewMutation.isPending ? 'Approving...' : 'Approve Project'}
+                        {reviewMutation.isPending ? 'Approving...' : 'Approve'}
                       </Button>
                       <Button 
                         variant="destructive" 
@@ -313,7 +313,7 @@ export default function ProjectDetails() {
                           reviewMutation.mutate({ decision: 'rejected', comments: 'Project rejected by reviewer' });
                         }}
                       >
-                        {reviewMutation.isPending ? 'Rejecting...' : 'Reject Project'}
+                        {reviewMutation.isPending ? 'Rejecting...' : 'Reject'}
                       </Button>
                     </div>
                   </div>
