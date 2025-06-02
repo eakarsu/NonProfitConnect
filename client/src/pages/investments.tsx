@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign, TrendingUp, Target, Calendar, ArrowUpRight } from "lucide-react";
+import { Link } from "wouter";
 import AppHeader from "@/components/AppHeader";
 
 export default function Investments() {
@@ -72,10 +73,12 @@ export default function Investments() {
           <div className="text-xs text-neutral-500">
             Investment #{investment.id}
           </div>
-          <Button variant="outline" size="sm">
-            View Project Details
-            <ArrowUpRight className="h-3 w-3 ml-1" />
-          </Button>
+          <Link href={`/projects/${investment.projectId}`}>
+            <Button variant="outline" size="sm">
+              View Project Details
+              <ArrowUpRight className="h-3 w-3 ml-1" />
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
