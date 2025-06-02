@@ -86,7 +86,7 @@ export async function setupMultiAuth(app: Express) {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/api/auth/google/callback"
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
         let user = await storage.getUserByEmail(profile.emails?.[0]?.value || '');
         
@@ -116,7 +116,7 @@ export async function setupMultiAuth(app: Express) {
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "/api/auth/github/callback"
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
         let user = await storage.getUserByEmail(profile.emails?.[0]?.value || '');
         

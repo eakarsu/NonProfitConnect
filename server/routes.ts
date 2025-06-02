@@ -7,7 +7,10 @@ import { insertProjectSchema, insertReviewSchema, insertInvestmentSchema } from 
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
+  // Multi-provider auth setup
+  await setupMultiAuth(app);
+  
+  // Keep Replit auth as fallback/additional option
   await setupAuth(app);
 
   // Auth routes
