@@ -91,20 +91,20 @@ export default function Login() {
             
             <Button
               variant="outline"
-              onClick={() => window.location.href = "/api/auth/google"}
-              className="w-full flex items-center justify-center gap-2"
+              disabled
+              className="w-full flex items-center justify-center gap-2 opacity-50"
             >
               <Chrome className="w-5 h-5" />
-              Continue with Google
+              Continue with Google (Coming Soon)
             </Button>
             
             <Button
               variant="outline"
-              onClick={() => window.location.href = "/api/auth/github"}
-              className="w-full flex items-center justify-center gap-2"
+              disabled
+              className="w-full flex items-center justify-center gap-2 opacity-50"
             >
               <Github className="w-5 h-5" />
-              Continue with GitHub
+              Continue with GitHub (Coming Soon)
             </Button>
           </div>
 
