@@ -21,7 +21,7 @@ interface ApplicationModalProps {
 }
 
 const formSchema = insertProjectSchema.extend({
-  requestedAmount: z.string().min(1, "Amount is required").transform((val) => parseFloat(val)),
+  requestedAmount: z.string().min(1, "Amount is required"),
 });
 
 export default function ApplicationModal({ isOpen, onClose }: ApplicationModalProps) {
@@ -33,7 +33,7 @@ export default function ApplicationModal({ isOpen, onClose }: ApplicationModalPr
       title: "",
       description: "",
       category: "",
-      requestedAmount: "" as any,
+      requestedAmount: "",
       timeline: "",
       priority: "medium",
     },
@@ -161,10 +161,8 @@ export default function ApplicationModal({ isOpen, onClose }: ApplicationModalPr
                     <FormLabel>Requested Amount ($)</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
+                        type="text" 
                         placeholder="50000" 
-                        min="1"
-                        step="0.01"
                         {...field} 
                       />
                     </FormControl>
