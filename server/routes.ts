@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -46,10 +46,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create a unified auth middleware that works with both systems
+  const unifiedAuth: RequestHandler = (req: any, res: any, next: any) => {
+    // Check if user is authenticated via multi-provider auth (passport session)
+    if (req.isAuthenticated() && req.user && !req.user.claims) {
+      return next();
+    }
+    // Fall back to Replit auth
+    return isAuthenticated(req, res, next);
+  };
+
   // Project routes
-  app.post('/api/projects', isAuthenticated, async (req: any, res) => {
+  app.post('/api/projects', unifiedAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Get user ID from either multi-provider auth or Replit auth
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
       const validatedData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(validatedData, userId);
       

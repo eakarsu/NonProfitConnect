@@ -37,7 +37,7 @@ export const users = pgTable("users", {
   password: varchar("password"), // For local authentication
   provider: varchar("provider"), // 'replit', 'google', 'github', 'local'
   providerId: varchar("provider_id"), // ID from the OAuth provider
-  role: varchar("role", { enum: ["applicant", "reviewer", "investor"] }).default("applicant").notNull(),
+  roles: varchar("roles").array().default(["applicant"]).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

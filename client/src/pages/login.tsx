@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Chrome, Github, Mail, Lock, User } from "lucide-react";
+import { Chrome, Github, Mail, Lock, User, UserCheck } from "lucide-react";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,11 +16,12 @@ export default function Login() {
     email: "",
     password: "",
     firstName: "",
-    lastName: ""
+    lastName: "",
+    role: "applicant"
   });
   const { toast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
@@ -155,6 +157,23 @@ export default function Login() {
                     />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="role">I want to join as</Label>
+                <Select name="role" value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
+                  <SelectTrigger>
+                    <UserCheck className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="applicant">Project Applicant - Submit funding requests</SelectItem>
+                    <SelectItem value="reviewer">Project Reviewer - Evaluate applications</SelectItem>
+                    <SelectItem value="investor">Investor - Fund approved projects</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
             
