@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Search, Filter } from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
 import AppHeader from "@/components/AppHeader";
 
 export default function Projects() {
@@ -163,9 +164,11 @@ export default function Projects() {
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-neutral-200">
-                    <Button variant="outline" className="w-full">
-                      View Details
-                    </Button>
+                    <Link href={`/projects/${project.id}`}>
+                      <Button variant="outline" className="w-full">
+                        View Details
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

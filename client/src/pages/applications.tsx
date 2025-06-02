@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Clock, CheckCircle, XCircle, DollarSign, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "wouter";
 import AppHeader from "@/components/AppHeader";
 
 export default function Applications() {
@@ -95,10 +96,12 @@ export default function Applications() {
             Application #{project.id}
           </div>
           <div className="space-x-2">
-            <Button variant="outline" size="sm">
-              <Eye className="h-3 w-3 mr-1" />
-              View Details
-            </Button>
+            <Link href={`/projects/${project.id}`}>
+              <Button variant="outline" size="sm">
+                <Eye className="h-3 w-3 mr-1" />
+                View Details
+              </Button>
+            </Link>
             {project.status === "pending" && !showApplicant && (
               <Button size="sm">
                 Review
