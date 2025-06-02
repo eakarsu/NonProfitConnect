@@ -101,7 +101,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(projects)
-      .where(eq(projects.status, status))
+      .where(eq(projects.status, status as any))
       .orderBy(desc(projects.submittedAt));
   }
 
@@ -124,7 +124,7 @@ export class DatabaseStorage implements IStorage {
   async updateProjectStatus(id: number, status: string): Promise<void> {
     await db
       .update(projects)
-      .set({ status, reviewedAt: new Date() })
+      .set({ status: status as any, reviewedAt: new Date() })
       .where(eq(projects.id, id));
   }
 
