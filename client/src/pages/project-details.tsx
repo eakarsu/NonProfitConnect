@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Calendar, DollarSign, Target, User } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, Target, User, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import AppHeader from "@/components/AppHeader";
 
 export default function ProjectDetails() {
   const { id } = useParams();
+  const { user } = useAuth();
   
   const { data: project, isLoading } = useQuery({
     queryKey: [`/api/projects/${id}`],
@@ -77,6 +79,10 @@ export default function ProjectDetails() {
   const totalInvestment = investments.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
   const goalAmount = Number(project.requestedAmount);
   const progressPercentage = Math.min((totalInvestment / goalAmount) * 100, 100);
+
+  // Check if current user has already invested in this project
+  const userInvestment = investments.find((inv: any) => inv.investorId === user?.id);
+  const hasInvested = !!userInvestment;
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -252,10 +258,28 @@ export default function ProjectDetails() {
                   <CardTitle>Take Action</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button className="w-full">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Invest in Project
-                  </Button>
+                  {hasInvested ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center p-4 bg-success/10 rounded-lg">
+                        <CheckCircle className="h-5 w-5 text-success mr-2" />
+                        <span className="text-success font-medium">You've invested in this project</span>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-neutral-600">Your investment:</p>
+                        <p className="text-lg font-bold text-success">
+                          ${Number(userInvestment.amount).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Invested on {new Date(userInvestment.investedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button className="w-full">
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      Invest in Project
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             )}
