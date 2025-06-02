@@ -161,6 +161,9 @@ export default function ProjectDetails() {
   // Check if current user has already invested in this project
   const userInvestment = investments.find((inv: any) => inv.investorId === user?.id);
   const hasInvested = !!userInvestment;
+  
+  // Check if project is fully funded
+  const isFullyFunded = totalInvestment >= goalAmount;
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -374,7 +377,20 @@ export default function ProjectDetails() {
                   <CardTitle>Take Action</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {hasInvested ? (
+                  {isFullyFunded ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center p-4 bg-primary/10 rounded-lg">
+                        <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                        <span className="text-primary font-medium">Project Fully Funded</span>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-neutral-600">This project has reached its funding goal</p>
+                        <p className="text-lg font-bold text-primary">
+                          ${totalInvestment.toLocaleString()} / ${goalAmount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ) : hasInvested ? (
                     <div className="space-y-3">
                       <div className="flex items-center justify-center p-4 bg-success/10 rounded-lg">
                         <CheckCircle className="h-5 w-5 text-success mr-2" />
