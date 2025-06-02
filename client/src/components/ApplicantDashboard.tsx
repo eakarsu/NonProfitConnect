@@ -8,6 +8,7 @@ import { queryClient } from "@/lib/queryClient";
 import ApplicationModal from "./ApplicationModal";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 
 export default function ApplicantDashboard() {
   const { toast } = useToast();
@@ -169,9 +170,11 @@ export default function ApplicantDashboard() {
                     </div>
                   </div>
                   <div className="mt-4 flex justify-end space-x-2">
-                    <Button variant="ghost" size="sm">
-                      View Details
-                    </Button>
+                    <Link href={`/projects/${project.id}`}>
+                      <Button variant="ghost" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
