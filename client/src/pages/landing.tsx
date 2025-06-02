@@ -12,7 +12,7 @@ export default function Landing() {
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-primary">NonProfit Connect</h1>
             </div>
-            <Button onClick={() => window.location.href = '/api/login'}>
+            <Button onClick={() => window.location.href = '/login'}>
               Sign In
             </Button>
           </div>
