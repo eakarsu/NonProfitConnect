@@ -13,10 +13,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Keep Replit auth as fallback/additional option
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Auth routes - handle both multi-provider and Replit auth
+  app.get('/api/auth/user', (req: any, res, next) => {
+    // Try multi-provider auth first
+    if (req.isAuthenticated() && req.user && !req.user.claims) {
+      return next();
+    }
+    // Fall back to Replit auth
+    return isAuthenticated(req, res, next);
+  }, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      let userId;
+      
+      // Handle multi-provider auth user
+      if (req.user && !req.user.claims) {
+        userId = req.user.id;
+      }
+      // Handle Replit auth user
+      else if (req.user && req.user.claims) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {

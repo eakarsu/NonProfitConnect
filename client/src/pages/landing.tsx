@@ -33,7 +33,7 @@ export default function Landing() {
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
             <Button 
               size="lg" 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/login'}
               className="w-full sm:w-auto"
             >
               Get Started
