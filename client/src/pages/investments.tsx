@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { DollarSign, TrendingUp, Target, Calendar, ArrowUpRight } from "lucide-r
 import AppHeader from "@/components/AppHeader";
 
 export default function Investments() {
+  const [activeTab, setActiveTab] = useState("my-investments");
   const { data: myInvestments = [] } = useQuery({
     queryKey: ["/api/investments/user"],
   });
@@ -207,7 +209,7 @@ export default function Investments() {
           </Card>
         </div>
 
-        <Tabs defaultValue="my-investments" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="my-investments">My Investments</TabsTrigger>
             <TabsTrigger value="opportunities">Investment Opportunities</TabsTrigger>
@@ -223,7 +225,7 @@ export default function Investments() {
                   <div className="text-center py-8">
                     <DollarSign className="h-12 w-12 text-neutral-400 mx-auto mb-4" />
                     <p className="text-neutral-600 mb-4">You haven't made any investments yet.</p>
-                    <Button>Explore Opportunities</Button>
+                    <Button onClick={() => setActiveTab("opportunities")}>Explore Opportunities</Button>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
