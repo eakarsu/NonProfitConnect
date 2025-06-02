@@ -152,6 +152,8 @@ export const insertInvestmentSchema = createInsertSchema(investments).omit({
   id: true,
   investorId: true,
   investedAt: true,
+}).extend({
+  amount: z.union([z.string(), z.number()]).transform((val) => String(val)),
 });
 
 export const insertNotificationSchema = createInsertSchema(notifications).omit({
