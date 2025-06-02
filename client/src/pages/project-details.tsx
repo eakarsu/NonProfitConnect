@@ -12,17 +12,17 @@ export default function ProjectDetails() {
   const { id } = useParams();
   
   const { data: project, isLoading } = useQuery({
-    queryKey: ["/api/projects", id],
+    queryKey: [`/api/projects/${id}`],
     enabled: !!id,
   });
 
   const { data: investments = [] } = useQuery({
-    queryKey: ["/api/investments/project", id],
+    queryKey: [`/api/investments/project/${id}`],
     enabled: !!id,
   });
 
   const { data: reviews = [] } = useQuery({
-    queryKey: ["/api/reviews/project", id],
+    queryKey: [`/api/reviews/project/${id}`],
     enabled: !!id,
   });
 
