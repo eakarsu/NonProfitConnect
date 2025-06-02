@@ -98,7 +98,7 @@ export default function Landing() {
           </p>
           <Button 
             size="lg" 
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/login'}
           >
             Join NonProfit Connect
           </Button>
