@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Calendar, DollarSign, Target, User, CheckCircle } from "lucide-react";
@@ -401,6 +401,9 @@ export default function ProjectDetails() {
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Invest in Project</DialogTitle>
+                          <DialogDescription>
+                            Enter the amount you would like to invest in this project.
+                          </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div>
