@@ -284,7 +284,7 @@ export default function ProjectDetails() {
             </Card>
 
             {/* Reviewer Actions */}
-            {project.status === "pending" && user?.roles?.includes("reviewer") && (
+            {project.status === "pending" && (
               <Card>
                 <CardHeader>
                   <CardTitle>Review Project</CardTitle>
