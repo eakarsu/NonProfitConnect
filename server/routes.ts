@@ -7,6 +7,11 @@ import { insertProjectSchema, insertReviewSchema, insertInvestmentSchema } from 
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
   // Multi-provider auth setup
   await setupMultiAuth(app);
   
