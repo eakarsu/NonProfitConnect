@@ -122,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/projects/:id', unifiedAuth, async (req, res) => {
     try {
       const projectId = parseInt(req.params.id);
       const project = await storage.getProject(projectId);
@@ -161,9 +161,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Investment routes
-  app.post('/api/investments', isAuthenticated, async (req: any, res) => {
+  app.post('/api/investments', unifiedAuth, async (req: any, res) => {
     try {
-      const investorId = req.user.claims.sub;
+      const investorId = req.user.claims ? req.user.claims.sub : req.user.id;
       const validatedData = insertInvestmentSchema.parse(req.body);
       const investment = await storage.createInvestment(validatedData, investorId);
       
@@ -184,9 +184,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/investments/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/investments/user', unifiedAuth, async (req: any, res) => {
     try {
-      const investorId = req.user.claims.sub;
+      const investorId = req.user.claims ? req.user.claims.sub : req.user.id;
       const investments = await storage.getInvestmentsByInvestor(investorId);
       res.json(investments);
     } catch (error) {
