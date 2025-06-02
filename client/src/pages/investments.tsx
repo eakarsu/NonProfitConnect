@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign, TrendingUp, Target, Calendar, ArrowUpRight } from "lucide-react";
+import AppHeader from "@/components/AppHeader";
 
 export default function Investments() {
   const { data: myInvestments = [] } = useQuery({
@@ -138,6 +139,7 @@ export default function Investments() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      <AppHeader currentRole="investments" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">Investments</h1>

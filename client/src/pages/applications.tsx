@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Clock, CheckCircle, XCircle, DollarSign, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import AppHeader from "@/components/AppHeader";
 
 export default function Applications() {
   const { user } = useAuth();
@@ -111,6 +112,7 @@ export default function Applications() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      <AppHeader currentRole="applications" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">Applications</h1>

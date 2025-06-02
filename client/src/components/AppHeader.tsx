@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Link, useLocation } from "wouter";
 
 interface AppHeaderProps {
   currentRole: string;
@@ -10,6 +11,7 @@ interface AppHeaderProps {
 
 export default function AppHeader({ currentRole }: AppHeaderProps) {
   const { user } = useAuth();
+  const [location] = useLocation();
   
   const { data: notifications = [] } = useQuery({
     queryKey: ["/api/notifications"],
@@ -17,6 +19,8 @@ export default function AppHeader({ currentRole }: AppHeaderProps) {
   });
 
   const unreadCount = notifications.filter((n: any) => !n.read).length;
+
+  const isActive = (path: string) => location === path;
 
   return (
     <header className="bg-white shadow-sm border-b border-neutral-200">
@@ -27,18 +31,34 @@ export default function AppHeader({ currentRole }: AppHeaderProps) {
               <h1 className="text-xl font-bold text-primary">NonProfit Connect</h1>
             </div>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
-              <a href="#" className="text-primary border-b-2 border-primary px-1 pb-4 text-sm font-medium">
+              <Link href="/" className={`px-1 pb-4 text-sm font-medium ${
+                isActive("/") 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}>
                 Dashboard
-              </a>
-              <a href="#" className="text-neutral-600 hover:text-neutral-900 px-1 pb-4 text-sm font-medium">
+              </Link>
+              <Link href="/projects" className={`px-1 pb-4 text-sm font-medium ${
+                isActive("/projects") 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}>
                 Projects
-              </a>
-              <a href="#" className="text-neutral-600 hover:text-neutral-900 px-1 pb-4 text-sm font-medium">
+              </Link>
+              <Link href="/applications" className={`px-1 pb-4 text-sm font-medium ${
+                isActive("/applications") 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}>
                 Applications
-              </a>
-              <a href="#" className="text-neutral-600 hover:text-neutral-900 px-1 pb-4 text-sm font-medium">
+              </Link>
+              <Link href="/investments" className={`px-1 pb-4 text-sm font-medium ${
+                isActive("/investments") 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}>
                 Investments
-              </a>
+              </Link>
             </nav>
           </div>
           <div className="flex items-center space-x-4">

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Search, Filter } from "lucide-react";
 import { useState } from "react";
+import AppHeader from "@/components/AppHeader";
 
 export default function Projects() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,6 +58,7 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      <AppHeader currentRole="projects" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">All Projects</h1>
