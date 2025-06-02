@@ -74,7 +74,7 @@ export const investments = pgTable("investments", {
   id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull(),
   investorId: varchar("investor_id").notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   investedAt: timestamp("invested_at").defaultNow(),
 });
 
