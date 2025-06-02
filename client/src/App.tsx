@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
 import Applications from "@/pages/applications";
 import Investments from "@/pages/investments";
+import ProjectDetails from "@/pages/project-details";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
