@@ -134,10 +134,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
       }
-      res.json(project);
+      
+      // Add funding status to project details
+      const fundingStatus = await storage.getProjectFundingStatus(projectId);
+      const projectWithFunding = {
+        ...project,
+        fundingStatus,
+      };
+      
+      res.json(projectWithFunding);
     } catch (error) {
       console.error("Error fetching project:", error);
       res.status(500).json({ message: "Failed to fetch project" });
+    }
+  });
+
+  app.get('/api/projects/:id/funding', unifiedAuth, async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.id);
+      const fundingStatus = await storage.getProjectFundingStatus(projectId);
+      res.json(fundingStatus);
+    } catch (error) {
+      console.error("Error fetching project funding status:", error);
+      res.status(500).json({ message: "Failed to fetch funding status" });
     }
   });
 

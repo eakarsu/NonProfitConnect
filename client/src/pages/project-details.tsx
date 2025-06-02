@@ -154,8 +154,9 @@ export default function ProjectDetails() {
     }
   };
 
-  const totalInvestment = investments.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
-  const goalAmount = Number(project.requestedAmount);
+  // Use funding status from project data if available, otherwise calculate from investments
+  const totalInvestment = project.fundingStatus?.total || investments.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0);
+  const goalAmount = project.fundingStatus?.goal || Number(project.requestedAmount);
   const progressPercentage = Math.min((totalInvestment / goalAmount) * 100, 100);
 
   // Check if current user has already invested in this project
