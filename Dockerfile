@@ -19,8 +19,8 @@ COPY docker/init-schema.js ./init-schema.js
 # Build the application
 RUN npm run build
 
-# Remove development dependencies to reduce image size
-RUN npm ci --only=production && npm cache clean --force
+# Keep drizzle-kit for database migrations in production
+RUN npm ci --only=production && npm install drizzle-kit && npm cache clean --force
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs
