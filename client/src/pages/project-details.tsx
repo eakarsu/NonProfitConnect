@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,13 @@ import { ArrowLeft, Calendar, DollarSign, Target, User, CheckCircle } from "luci
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import AppHeader from "@/components/AppHeader";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProjectDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { toast } = useToast();
   
   const { data: project, isLoading } = useQuery({
     queryKey: [`/api/projects/${id}`],
@@ -26,6 +29,35 @@ export default function ProjectDetails() {
   const { data: reviews = [] } = useQuery({
     queryKey: [`/api/reviews/project/${id}`],
     enabled: !!id,
+  });
+
+  // Review mutation
+  const reviewMutation = useMutation({
+    mutationFn: async ({ decision, comments }: { decision: 'approved' | 'rejected'; comments?: string }) => {
+      return await apiRequest('/api/reviews', 'POST', {
+        projectId: parseInt(id!),
+        decision,
+        comments: comments || ''
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Review Submitted",
+        description: "Your review has been submitted successfully.",
+      });
+      // Refresh project data and reviews
+      queryClient.invalidateQueries({ queryKey: [`/api/projects/${id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/reviews/project/${id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects/pending'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects/approved'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to submit review. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   if (isLoading) {
@@ -251,7 +283,45 @@ export default function ProjectDetails() {
               </CardContent>
             </Card>
 
-            {/* Action Buttons */}
+            {/* Reviewer Actions */}
+            {project.status === "pending" && user?.roles?.includes("reviewer") && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Review Project</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <p className="text-sm text-neutral-600 mb-4">
+                      As a reviewer, you can approve or reject this project application.
+                    </p>
+                    <div className="flex space-x-3">
+                      <Button 
+                        className="flex-1 bg-success hover:bg-success/90"
+                        disabled={reviewMutation.isPending}
+                        onClick={() => {
+                          reviewMutation.mutate({ decision: 'approved', comments: 'Project approved by reviewer' });
+                        }}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {reviewMutation.isPending ? 'Approving...' : 'Approve Project'}
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        className="flex-1"
+                        disabled={reviewMutation.isPending}
+                        onClick={() => {
+                          reviewMutation.mutate({ decision: 'rejected', comments: 'Project rejected by reviewer' });
+                        }}
+                      >
+                        {reviewMutation.isPending ? 'Rejecting...' : 'Reject Project'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Investment Actions */}
             {project.status === "approved" && (
               <Card>
                 <CardHeader>
