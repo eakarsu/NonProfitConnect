@@ -1,4 +1,4 @@
-# Simple Node.js application - database provided externally
+# Simple Node.js only Dockerfile - no database included
 FROM node:20-alpine
 
 # Set working directory
@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy package files first for better Docker layer caching
 COPY package*.json ./
 
-# Install all dependencies
+# Install all dependencies (including devDependencies for build)
 RUN npm ci
 
 # Copy application code
