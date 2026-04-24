@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClipboardList, CheckCircle, XCircle, Clock } from "lucide-react";
 import ReviewModal from "./ReviewModal";
+import { useLocation } from "wouter";
 
 export default function ReviewerDashboard() {
+  const [, navigate] = useLocation();
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
@@ -26,14 +28,10 @@ export default function ReviewerDashboard() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high":
-        return "border-error bg-red-50";
-      case "medium":
-        return "border-warning bg-yellow-50";
-      case "low":
-        return "border-neutral-200 bg-white";
-      default:
-        return "border-neutral-200 bg-white";
+      case "high": return "border-error bg-red-50";
+      case "medium": return "border-warning bg-yellow-50";
+      case "low": return "border-neutral-200 bg-white";
+      default: return "border-neutral-200 bg-white";
     }
   };
 
@@ -47,14 +45,11 @@ export default function ReviewerDashboard() {
 
   return (
     <div>
-      {/* Reviewer Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ClipboardList className="h-8 w-8 text-warning" />
-              </div>
+              <ClipboardList className="h-8 w-8 text-warning flex-shrink-0" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-neutral-600">Pending Reviews</p>
                 <p className="text-2xl font-bold text-warning">{stats.pendingReviews || 0}</p>
@@ -62,13 +57,10 @@ export default function ReviewerDashboard() {
             </div>
           </CardContent>
         </Card>
-        
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-8 w-8 text-success" />
-              </div>
+              <CheckCircle className="h-8 w-8 text-success flex-shrink-0" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-neutral-600">Approved This Month</p>
                 <p className="text-2xl font-bold text-success">{stats.approvedThisMonth || 0}</p>
@@ -76,13 +68,10 @@ export default function ReviewerDashboard() {
             </div>
           </CardContent>
         </Card>
-        
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <XCircle className="h-8 w-8 text-error" />
-              </div>
+              <XCircle className="h-8 w-8 text-error flex-shrink-0" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-neutral-600">Rejected This Month</p>
                 <p className="text-2xl font-bold text-error">{stats.rejectedThisMonth || 0}</p>
@@ -90,13 +79,10 @@ export default function ReviewerDashboard() {
             </div>
           </CardContent>
         </Card>
-        
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Clock className="h-8 w-8 text-neutral-600" />
-              </div>
+              <Clock className="h-8 w-8 text-neutral-600 flex-shrink-0" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-neutral-600">Avg Review Time</p>
                 <p className="text-2xl font-bold text-neutral-900">{stats.avgReviewTime || "N/A"}</p>
@@ -106,7 +92,6 @@ export default function ReviewerDashboard() {
         </Card>
       </div>
 
-      {/* Review Queue */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -145,9 +130,10 @@ export default function ReviewerDashboard() {
           ) : (
             <div className="space-y-6">
               {pendingProjects.map((project: any) => (
-                <div 
-                  key={project.id} 
-                  className={`border rounded-lg p-4 ${getPriorityColor(project.priority)}`}
+                <div
+                  key={project.id}
+                  className={`border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow ${getPriorityColor(project.priority)}`}
+                  onClick={() => navigate(`/projects/${project.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -183,7 +169,7 @@ export default function ReviewerDashboard() {
                       </div>
                     </div>
                   </div>
-                  <div className="mt-4 flex justify-end space-x-3">
+                  <div className="mt-4 flex justify-end space-x-3" onClick={(e) => e.stopPropagation()}>
                     <Button onClick={() => handleReviewClick(project)}>
                       Review Application
                     </Button>
@@ -198,7 +184,7 @@ export default function ReviewerDashboard() {
         </CardContent>
       </Card>
 
-      <ReviewModal 
+      <ReviewModal
         isOpen={isReviewModalOpen}
         project={selectedProject}
         onClose={() => {

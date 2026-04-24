@@ -4,11 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Chrome, Github, Mail, Lock, User, UserCheck } from "lucide-react";
+import { Chrome, Github, Mail, Lock, User, Zap } from "lucide-react";
+import { Link } from "wouter";
+
+function getPasswordStrength(password: string): { score: number; label: string } {
+  let score = 0;
+  if (password.length >= 8) score += 25;
+  if (/[A-Z]/.test(password)) score += 25;
+  if (/[0-9]/.test(password)) score += 25;
+  if (/[^A-Za-z0-9]/.test(password)) score += 25;
+  if (score <= 25) return { score, label: "Weak" };
+  if (score <= 50) return { score, label: "Fair" };
+  if (score <= 75) return { score, label: "Good" };
+  return { score, label: "Strong" };
+}
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,6 +33,8 @@ export default function Login() {
     roles: ["applicant"]
   });
   const { toast } = useToast();
+
+  const strength = getPasswordStrength(formData.password);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -35,7 +49,7 @@ export default function Login() {
 
     try {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-      const body = isLogin 
+      const body = isLogin
         ? { email: formData.email, password: formData.password }
         : formData;
 
@@ -74,42 +88,65 @@ export default function Login() {
             {isLogin ? "Welcome back" : "Create account"}
           </CardTitle>
           <CardDescription>
-            {isLogin 
-              ? "Sign in to your account to continue" 
+            {isLogin
+              ? "Sign in to your account to continue"
               : "Sign up to start your funding journey"
             }
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Social Login Options */}
-          <div className="grid grid-cols-1 gap-3">
-            <Button
-              variant="outline"
-              onClick={() => window.location.href = "/api/login"}
-              className="w-full flex items-center justify-center gap-2"
-            >
-              <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded"></div>
-              Continue with Replit
-            </Button>
-            
-            <Button
-              variant="outline"
-              disabled
-              className="w-full flex items-center justify-center gap-2 opacity-50"
-            >
-              <Chrome className="w-5 h-5" />
-              Continue with Google (Coming Soon)
-            </Button>
-            
-            <Button
-              variant="outline"
-              disabled
-              className="w-full flex items-center justify-center gap-2 opacity-50"
-            >
-              <Github className="w-5 h-5" />
-              Continue with GitHub (Coming Soon)
-            </Button>
-          </div>
+          {/* Quick Demo Login */}
+          {isLogin && (
+            <div className="space-y-2">
+              <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wider">Quick Demo Login</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, email: "alice@example.com", password: "Password1!" }));
+                  }}
+                >
+                  <Zap className="w-3 h-3 mr-1 text-blue-500" />
+                  Applicant
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-green-200 hover:bg-green-50 hover:border-green-300"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, email: "david@example.com", password: "Password1!" }));
+                  }}
+                >
+                  <Zap className="w-3 h-3 mr-1 text-green-500" />
+                  Reviewer
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, email: "frank@example.com", password: "Password1!" }));
+                  }}
+                >
+                  <Zap className="w-3 h-3 mr-1 text-purple-500" />
+                  Investor
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-orange-200 hover:bg-orange-50 hover:border-orange-300"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, email: "noah@example.com", password: "Password1!" }));
+                  }}
+                >
+                  <Zap className="w-3 h-3 mr-1 text-orange-500" />
+                  All Roles
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -117,7 +154,7 @@ export default function Login() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with email
+                {isLogin ? "Or sign in with email" : "Sign up with email"}
               </span>
             </div>
           </div>
@@ -204,7 +241,7 @@ export default function Login() {
                 </div>
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -221,9 +258,18 @@ export default function Login() {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {isLogin && (
+                  <Link href="/forgot-password">
+                    <Button variant="link" className="p-0 h-auto text-xs">
+                      Forgot password?
+                    </Button>
+                  </Link>
+                )}
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -237,8 +283,14 @@ export default function Login() {
                   required
                 />
               </div>
+              {!isLogin && formData.password && (
+                <div className="space-y-1">
+                  <Progress value={strength.score} className="h-2" />
+                  <p className="text-xs text-muted-foreground">Password strength: {strength.label}</p>
+                </div>
+              )}
             </div>
-            
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
             </Button>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,12 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Clock, CheckCircle, XCircle, DollarSign, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
+import SearchBar from "@/components/SearchBar";
+import { useDebounce } from "@/hooks/useDebounce";
+import DetailSheet from "@/components/DetailSheet";
 
 export default function Applications() {
   const { user } = useAuth();
-  
+  const [, navigate] = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const debouncedSearch = useDebounce(searchTerm);
+
   const { data: userProjects = [] } = useQuery({
     queryKey: ["/api/projects/user"],
   });
@@ -21,38 +29,39 @@ export default function Applications() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
-        return "bg-warning text-white";
-      case "approved":
-        return "bg-success text-white";
-      case "rejected":
-        return "bg-error text-white";
-      case "funded":
-        return "bg-primary text-white";
-      case "completed":
-        return "bg-success text-white";
-      default:
-        return "bg-neutral-200 text-neutral-900";
+      case "pending": return "bg-warning text-white";
+      case "approved": return "bg-success text-white";
+      case "rejected": return "bg-error text-white";
+      case "funded": return "bg-primary text-white";
+      case "completed": return "bg-success text-white";
+      default: return "bg-neutral-200 text-neutral-900";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4" />;
-      case "approved":
-        return <CheckCircle className="h-4 w-4" />;
-      case "rejected":
-        return <XCircle className="h-4 w-4" />;
-      case "funded":
-        return <DollarSign className="h-4 w-4" />;
-      default:
-        return <FileText className="h-4 w-4" />;
+      case "pending": return <Clock className="h-4 w-4" />;
+      case "approved": return <CheckCircle className="h-4 w-4" />;
+      case "rejected": return <XCircle className="h-4 w-4" />;
+      case "funded": return <DollarSign className="h-4 w-4" />;
+      default: return <FileText className="h-4 w-4" />;
     }
   };
 
+  const filterProjects = (projects: any[]) => {
+    if (!debouncedSearch) return projects;
+    return projects.filter((p: any) =>
+      p.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      p.description.toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+  };
+
   const ApplicationCard = ({ project, showApplicant = false }: { project: any; showApplicant?: boolean }) => (
-    <Card key={project.id} className="hover:shadow-md transition-shadow">
+    <Card
+      key={project.id}
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => navigate(`/projects/${project.id}`)}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -71,7 +80,7 @@ export default function Applications() {
       </CardHeader>
       <CardContent>
         <p className="text-neutral-600 text-sm mb-4">{project.description}</p>
-        
+
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <span className="text-neutral-600">Category:</span>
@@ -95,14 +104,11 @@ export default function Applications() {
           <div className="text-xs text-neutral-500">
             Application #{project.id}
           </div>
-          <div className="space-x-2">
-            <Link href={`/projects/${project.id}`}>
-              <Button variant="outline" size="sm">
-                <Eye className="h-3 w-3 mr-1" />
-                View Details
-              </Button>
-            </Link>
-
+          <div className="space-x-2" onClick={(e) => e.stopPropagation()}>
+            <Button variant="outline" size="sm" onClick={() => setSelectedProject(project)}>
+              <Eye className="h-3 w-3 mr-1" />
+              Quick View
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -118,6 +124,10 @@ export default function Applications() {
           <p className="text-neutral-600">Manage and track project applications</p>
         </div>
 
+        <div className="mb-6">
+          <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Search applications..." />
+        </div>
+
         <Tabs defaultValue="my-applications" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="my-applications">My Applications</TabsTrigger>
@@ -130,15 +140,16 @@ export default function Applications() {
                 <CardTitle>Your Submitted Applications</CardTitle>
               </CardHeader>
               <CardContent>
-                {userProjects.length === 0 ? (
+                {filterProjects(userProjects).length === 0 ? (
                   <div className="text-center py-8">
                     <FileText className="h-12 w-12 text-neutral-400 mx-auto mb-4" />
-                    <p className="text-neutral-600 mb-4">You haven't submitted any applications yet.</p>
-                    <Button>Submit Your First Application</Button>
+                    <p className="text-neutral-600 mb-4">
+                      {searchTerm ? "No applications match your search." : "You haven't submitted any applications yet."}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {userProjects.map((project: any) => (
+                    {filterProjects(userProjects).map((project: any) => (
                       <ApplicationCard key={project.id} project={project} />
                     ))}
                   </div>
@@ -158,14 +169,16 @@ export default function Applications() {
                 </div>
               </CardHeader>
               <CardContent>
-                {pendingProjects.length === 0 ? (
+                {filterProjects(pendingProjects).length === 0 ? (
                   <div className="text-center py-8">
                     <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
-                    <p className="text-neutral-600">All applications have been reviewed.</p>
+                    <p className="text-neutral-600">
+                      {searchTerm ? "No applications match your search." : "All applications have been reviewed."}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {pendingProjects.map((project: any) => (
+                    {filterProjects(pendingProjects).map((project: any) => (
                       <ApplicationCard key={project.id} project={project} showApplicant={true} />
                     ))}
                   </div>
@@ -174,6 +187,14 @@ export default function Applications() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <DetailSheet
+          project={selectedProject}
+          open={!!selectedProject}
+          onClose={() => setSelectedProject(null)}
+          canEdit={selectedProject?.userId === user?.id}
+          canDelete={selectedProject?.userId === user?.id}
+        />
       </div>
     </div>
   );

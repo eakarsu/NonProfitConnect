@@ -5,8 +5,8 @@ import AppHeader from "@/components/AppHeader";
 import ApplicantDashboard from "@/components/ApplicantDashboard";
 import ReviewerDashboard from "@/components/ReviewerDashboard";
 import InvestorDashboard from "@/components/InvestorDashboard";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 import { Button } from "@/components/ui/button";
-import { isUnauthorizedError } from "@/lib/authUtils";
 
 type UserRole = "applicant" | "reviewer" | "investor";
 
@@ -15,41 +15,38 @@ export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [currentRole, setCurrentRole] = useState<UserRole>("applicant");
 
-  // Set initial role based on user's roles
   useEffect(() => {
     if (user?.roles?.length > 0) {
       setCurrentRole(user.roles[0] as UserRole);
     }
   }, [user]);
 
-  // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
         title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
+        description: "You are logged out. Redirecting to login...",
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
       }, 500);
-      return;
     }
   }, [isAuthenticated, isLoading, toast]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-neutral-600">Loading...</p>
+      <div className="min-h-screen bg-neutral-50">
+        <AppHeader currentRole="applicant" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <DashboardSkeleton />
         </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect
+    return null;
   }
 
   const handleRoleChange = (role: UserRole) => {
@@ -59,13 +56,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-neutral-50">
       <AppHeader currentRole={currentRole} />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Role Switcher - Only show if user has multiple roles */}
         {user?.roles && user.roles.length > 1 && (
           <div className="mb-8">
             <div className="sm:hidden">
-              <select 
+              <select
                 value={`${currentRole}-view`}
                 onChange={(e) => {
                   const role = e.target.value.replace('-view', '') as UserRole;
@@ -126,7 +122,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Dashboard Content */}
         {currentRole === "applicant" && user?.roles?.includes("applicant") && <ApplicantDashboard />}
         {currentRole === "reviewer" && user?.roles?.includes("reviewer") && <ReviewerDashboard />}
         {currentRole === "investor" && user?.roles?.includes("investor") && <InvestorDashboard />}

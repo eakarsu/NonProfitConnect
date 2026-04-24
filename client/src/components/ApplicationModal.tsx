@@ -14,6 +14,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { z } from "zod";
+import { Sparkles, Loader2 } from "lucide-react";
 
 interface ApplicationModalProps {
   isOpen: boolean;
@@ -39,6 +40,27 @@ export default function ApplicationModal({ isOpen, onClose }: ApplicationModalPr
     },
   });
 
+  const aiGenerateMutation = useMutation({
+    mutationFn: async () => {
+      const title = form.getValues("title");
+      const category = form.getValues("category");
+      if (!title || !category) {
+        throw new Error("Please enter a title and select a category first");
+      }
+      const res = await apiRequest("POST", "/api/ai/generate-description", { title, category });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      form.setValue("description", data.description);
+      if (data.suggestedTimeline) form.setValue("timeline", data.suggestedTimeline);
+      if (data.suggestedBudget) form.setValue("requestedAmount", data.suggestedBudget.replace(/[^0-9.]/g, ""));
+      toast({ title: "AI Generated", description: "Description and suggestions filled in. Review and adjust as needed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "AI Generation Failed", description: error.message, variant: "destructive" });
+    },
+  });
+
   const createProjectMutation = useMutation({
     mutationFn: async (data: any) => {
       await apiRequest("POST", "/api/projects", data);
@@ -61,7 +83,7 @@ export default function ApplicationModal({ isOpen, onClose }: ApplicationModalPr
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";
         }, 500);
         return;
       }
@@ -113,12 +135,29 @@ export default function ApplicationModal({ isOpen, onClose }: ApplicationModalPr
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Description</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Project Description</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-xs gap-1"
+                      disabled={aiGenerateMutation.isPending}
+                      onClick={() => aiGenerateMutation.mutate()}
+                    >
+                      {aiGenerateMutation.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      {aiGenerateMutation.isPending ? "Generating..." : "AI Generate"}
+                    </Button>
+                  </div>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Describe your project, its goals, and expected impact"
                       className="min-h-24"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />

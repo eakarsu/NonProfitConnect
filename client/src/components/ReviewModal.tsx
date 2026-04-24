@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Sparkles, Loader2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -42,7 +42,7 @@ export default function ReviewModal({ isOpen, project, onClose }: ReviewModalPro
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";
         }, 500);
         return;
       }
@@ -79,6 +79,22 @@ export default function ReviewModal({ isOpen, project, onClose }: ReviewModalPro
       comments: comments.trim(),
     });
   };
+
+  const aiSuggestionMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("GET", `/api/ai/review-suggestion/${project.id}`);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      setDecision(data.recommendation === "approve" ? "approved" : "rejected");
+      const feedback = data.detailedFeedback?.join("\n\n") || data.summary;
+      setComments(`AI Suggested Review (${data.confidence}% confidence):\n\n${data.summary}\n\n${feedback}`);
+      toast({ title: "AI Suggestion Ready", description: "Review suggestion populated. Adjust as needed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "AI Failed", description: error.message, variant: "destructive" });
+    },
+  });
 
   const handleClose = () => {
     setComments("");
@@ -145,6 +161,21 @@ export default function ReviewModal({ isOpen, project, onClose }: ReviewModalPro
               </div>
             </div>
           </div>
+
+          {/* AI Suggestion Button */}
+          <Button
+            variant="outline"
+            className="w-full gap-2 border-purple-200 hover:bg-purple-50"
+            disabled={aiSuggestionMutation.isPending}
+            onClick={() => aiSuggestionMutation.mutate()}
+          >
+            {aiSuggestionMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 text-purple-500" />
+            )}
+            {aiSuggestionMutation.isPending ? "AI is analyzing..." : "Get AI Review Suggestion"}
+          </Button>
 
           {/* Decision Buttons */}
           <div className="space-y-4">

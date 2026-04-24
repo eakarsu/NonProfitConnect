@@ -9,7 +9,8 @@ import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
 if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
+  // In local development, Replit auth is not available
+  console.warn("REPLIT_DOMAINS not set - Replit auth disabled (local development)");
 }
 
 const getOidcConfig = memoize(
@@ -67,10 +68,13 @@ async function upsertUser(
 }
 
 export async function setupAuth(app: Express) {
+  // Skip Replit auth setup if REPLIT_DOMAINS is not configured (local development)
+  if (!process.env.REPLIT_DOMAINS || process.env.REPLIT_DOMAINS === 'localhost:3001') {
+    console.log("Replit auth skipped (local development mode)");
+    return;
+  }
+
   app.set("trust proxy", 1);
-  app.use(getSession());
-  app.use(passport.initialize());
-  app.use(passport.session());
 
   const config = await getOidcConfig();
 
@@ -128,6 +132,11 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // In local development, Replit auth is not active - fall through to multiAuth
+  if (!process.env.REPLIT_DOMAINS || process.env.REPLIT_DOMAINS === 'localhost:3001') {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
