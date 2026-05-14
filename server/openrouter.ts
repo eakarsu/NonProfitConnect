@@ -105,6 +105,48 @@ export async function analyzeInvestmentOpportunity(project: any, fundingStatus: 
   return JSON.parse(content);
 }
 
+export async function generateProposalDraft(input: { title: string; category: string; targetFunders?: string; budget?: string; timeline?: string; goals?: string }): Promise<any> {
+  const content = await callOpenRouter([
+    {
+      role: "system",
+      content: `You are an experienced grant proposal writer for nonprofits. Generate a complete grant proposal draft. Return JSON: { executiveSummary, statementOfNeed, projectDescription, goalsAndObjectives, methodology, evaluationPlan, sustainability, budgetNarrative, organizationCapacity, conclusion }. Return ONLY valid JSON, no markdown.`
+    },
+    {
+      role: "user",
+      content: `Draft a grant proposal.\nTitle: ${input.title}\nCategory: ${input.category}\nTarget Funders: ${input.targetFunders || 'general foundations'}\nBudget: ${input.budget || 'unspecified'}\nTimeline: ${input.timeline || 'unspecified'}\nGoals: ${input.goals || 'unspecified'}`
+    }
+  ]);
+  return JSON.parse(content);
+}
+
+export async function segmentDonors(donors: any[]): Promise<any> {
+  const content = await callOpenRouter([
+    {
+      role: "system",
+      content: `You are a fundraising data analyst. Segment the supplied donor list and produce engagement strategies per segment. Return JSON: { segments: [{ name, criteria, count, avgGiftEstimate, recommendedOutreach }], notes }. Return ONLY valid JSON, no markdown.`
+    },
+    {
+      role: "user",
+      content: `Donor sample (${donors.length}):\n${JSON.stringify(donors.slice(0, 50))}`
+    }
+  ]);
+  return JSON.parse(content);
+}
+
+export async function matchDonation(donor: any, projects: any[]): Promise<any> {
+  const content = await callOpenRouter([
+    {
+      role: "system",
+      content: `You are a donor matching engine. Given a donor profile and a list of projects, rank the top matches and explain reasoning. Return JSON: { matches: [{ projectId, score, reasons }], notes }. Return ONLY valid JSON, no markdown.`
+    },
+    {
+      role: "user",
+      content: `Donor:\n${JSON.stringify(donor)}\nProjects (${projects.length}):\n${JSON.stringify(projects.slice(0, 30))}`
+    }
+  ]);
+  return JSON.parse(content);
+}
+
 export async function generateProjectSummary(project: any, reviews: any[], investments: any[]): Promise<any> {
   const content = await callOpenRouter([
     {

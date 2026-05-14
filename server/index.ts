@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { apiLimiter } from "./middleware/rateLimiter";
+import gapFeaturesRouter from './routes/gap-features'; // === Batch 11 Gaps & Frontend Mounts ===
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+app.use('/api', gapFeaturesRouter); // === Batch 11 Gaps & Frontend Mounts ===
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 

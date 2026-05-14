@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import {
   Bell, Clock, CheckCircle, Settings, MessageSquare, BarChart3,
-  Bookmark, Trophy, Shield, Menu, X, LogOut,
+  Bookmark, Trophy, Shield, Menu, X, LogOut, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +56,7 @@ export default function AppHeader({ currentRole }: AppHeaderProps) {
     { href: "/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/bookmarks", label: "Bookmarks", icon: Bookmark },
     { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+    { href: "/ai-tools", label: "AI Tools", icon: Sparkles },
     ...((user as any)?.roles?.includes("admin")
       ? [{ href: "/admin", label: "Admin", icon: Shield }]
       : []),

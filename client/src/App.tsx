@@ -1,3 +1,14 @@
+// === Batch 11 Gaps & Frontend Mounts ===
+import GapDonationMatchingPage from './pages/gap/GapDonationMatchingPage'
+import GapGrantProposalWriterPage from './pages/gap/GapGrantProposalWriterPage'
+import GapDonorSegmentationPage from './pages/gap/GapDonorSegmentationPage'
+import GapContentModerationPage from './pages/gap/GapContentModerationPage'
+import GapPaymentProcessingPage from './pages/gap/GapPaymentProcessingPage'
+import GapRecurringDonationsPage from './pages/gap/GapRecurringDonationsPage'
+import GapVolunteerManagementPage from './pages/gap/GapVolunteerManagementPage'
+import GapGrantDocVersioningPage from './pages/gap/GapGrantDocVersioningPage'
+import GapTaxReceiptGenerationPage from './pages/gap/GapTaxReceiptGenerationPage'
+import GapMobileAppStubPage from './pages/gap/GapMobileAppStubPage'
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -23,6 +34,7 @@ import Bookmarks from "@/pages/bookmarks";
 import Activity from "@/pages/activity";
 import PublicGallery from "@/pages/public-gallery";
 import Leaderboard from "@/pages/leaderboard";
+import AITools from "@/pages/ai-tools";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -51,6 +63,18 @@ function Router() {
           <Route path="/bookmarks" component={Bookmarks} />
           <Route path="/activity" component={Activity} />
           <Route path="/leaderboard" component={Leaderboard} />
+          <Route path="/ai-tools" component={AITools} />
+          {/* === Batch 11 Gaps & Frontend Mounts === */}
+          <Route path="/gap/donation-matching" component={GapDonationMatchingPage} />
+          <Route path="/gap/grant-proposal-writer" component={GapGrantProposalWriterPage} />
+          <Route path="/gap/donor-segmentation" component={GapDonorSegmentationPage} />
+          <Route path="/gap/content-moderation" component={GapContentModerationPage} />
+          <Route path="/gap/payment-processing" component={GapPaymentProcessingPage} />
+          <Route path="/gap/recurring-donations" component={GapRecurringDonationsPage} />
+          <Route path="/gap/volunteer-management" component={GapVolunteerManagementPage} />
+          <Route path="/gap/grant-doc-versioning" component={GapGrantDocVersioningPage} />
+          <Route path="/gap/tax-receipt-generation" component={GapTaxReceiptGenerationPage} />
+          <Route path="/gap/mobile-app-stub" component={GapMobileAppStubPage} />
         </>
       )}
       <Route component={NotFound} />

@@ -14,6 +14,9 @@ import {
   generateReviewSuggestion,
   analyzeInvestmentOpportunity,
   generateProjectSummary,
+  generateProposalDraft,
+  segmentDonors,
+  matchDonation,
 } from "./openrouter";
 import { registerNewRoutes } from "./newRoutes";
 
@@ -486,6 +489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register all new feature routes
   registerNewRoutes(app, unifiedAuth, getUserId);
+  require("./extraRoutes").registerExtraRoutes(app, unifiedAuth, getUserId);
 
   // ==========================================
   // AI Routes (OpenRouter)
@@ -552,6 +556,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("AI investment analysis error:", error);
       res.status(500).json({ message: error.message || "AI investment analysis failed" });
+    }
+  });
+
+  // AI proposal-writing assistant
+  app.post('/api/ai/proposal-draft', unifiedAuth, async (req: any, res) => {
+    try {
+      const { title, category, targetFunders, budget, timeline, goals } = req.body || {};
+      if (!title || !category) {
+        return res.status(400).json({ message: "title and category are required" });
+      }
+      const result = await generateProposalDraft({ title, category, targetFunders, budget, timeline, goals });
+      res.json(result);
+    } catch (error: any) {
+      console.error("AI proposal draft error:", error);
+      res.status(500).json({ message: error.message || "AI proposal draft failed" });
+    }
+  });
+
+  // AI donor segmentation
+  app.post('/api/ai/segment-donors', unifiedAuth, async (req: any, res) => {
+    try {
+      const { donors } = req.body || {};
+      if (!Array.isArray(donors) || donors.length === 0) {
+        return res.status(400).json({ message: "donors (non-empty array) is required" });
+      }
+      const result = await segmentDonors(donors);
+      res.json(result);
+    } catch (error: any) {
+      console.error("AI segment donors error:", error);
+      res.status(500).json({ message: error.message || "AI donor segmentation failed" });
+    }
+  });
+
+  // AI donation matching
+  app.post('/api/ai/match-donation', unifiedAuth, async (req: any, res) => {
+    try {
+      const { donor, projects } = req.body || {};
+      if (!donor || !Array.isArray(projects)) {
+        return res.status(400).json({ message: "donor (object) and projects (array) are required" });
+      }
+      const result = await matchDonation(donor, projects);
+      res.json(result);
+    } catch (error: any) {
+      console.error("AI match donation error:", error);
+      res.status(500).json({ message: error.message || "AI donation matching failed" });
     }
   });
 
