@@ -19,6 +19,7 @@ import {
   matchDonation,
 } from "./openrouter";
 import { registerNewRoutes } from "./newRoutes";
+import { registerExtraRoutes } from "./extraRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
@@ -489,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register all new feature routes
   registerNewRoutes(app, unifiedAuth, getUserId);
-  require("./extraRoutes").registerExtraRoutes(app, unifiedAuth, getUserId);
+  registerExtraRoutes(app, unifiedAuth, getUserId);
 
   // ==========================================
   // AI Routes (OpenRouter)

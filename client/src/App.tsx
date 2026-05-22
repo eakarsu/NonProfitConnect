@@ -36,11 +36,16 @@ import PublicGallery from "@/pages/public-gallery";
 import Leaderboard from "@/pages/leaderboard";
 import AITools from "@/pages/ai-tools";
 
+import CodexCustomVizFeature from "./pages/CodexCustomVizFeature";
+import CodexOperationsFeature from "./pages/CodexOperationsFeature";
+
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
+      <Route path="/codex/custom-viz" component={CodexCustomVizFeature} />
+      <Route path="/codex/operations" component={CodexOperationsFeature} />
       <Route path="/gallery" component={PublicGallery} />
       {isLoading || !isAuthenticated ? (
         <>
