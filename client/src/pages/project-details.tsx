@@ -34,42 +34,42 @@ export default function ProjectDetails() {
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [replyContent, setReplyContent] = useState('');
 
-  const { data: project, isLoading } = useQuery({
+  const { data: project, isLoading } = useQuery<any>({
     queryKey: [`/api/projects/${id}`],
     enabled: !!id,
   });
 
-  const { data: investments = [] } = useQuery({
+  const { data: investments = [] } = useQuery<any>({
     queryKey: [`/api/investments/project/${id}`],
     enabled: !!id,
   });
 
-  const { data: reviews = [] } = useQuery({
+  const { data: reviews = [] } = useQuery<any>({
     queryKey: [`/api/reviews/project/${id}`],
     enabled: !!id,
   });
 
-  const { data: milestonesData = [] } = useQuery({
+  const { data: milestonesData = [] } = useQuery<any>({
     queryKey: [`/api/milestones/${id}`],
     enabled: !!id,
   });
 
-  const { data: commentsData = [] } = useQuery({
+  const { data: commentsData = [] } = useQuery<any>({
     queryKey: [`/api/comments/${id}`],
     enabled: !!id,
   });
 
-  const { data: documentsData = [] } = useQuery({
+  const { data: documentsData = [] } = useQuery<any>({
     queryKey: [`/api/documents/${id}`],
     enabled: !!id,
   });
 
-  const { data: updatesData = [] } = useQuery({
+  const { data: updatesData = [] } = useQuery<any>({
     queryKey: [`/api/project-updates/${id}`],
     enabled: !!id,
   });
 
-  const { data: bookmarksData = [] } = useQuery({
+  const { data: bookmarksData = [] } = useQuery<any>({
     queryKey: ['/api/bookmarks'],
     enabled: !!user,
   });

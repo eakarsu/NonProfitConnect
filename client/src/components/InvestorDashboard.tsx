@@ -17,15 +17,15 @@ export default function InvestorDashboard() {
   const { toast } = useToast();
   const [investmentAmounts, setInvestmentAmounts] = useState<{ [key: number]: string }>({});
 
-  const { data: stats = {} } = useQuery({
+  const { data: stats = {} } = useQuery<any>({
     queryKey: ["/api/stats/investor"],
   });
 
-  const { data: approvedProjects = [] } = useQuery({
+  const { data: approvedProjects = [] } = useQuery<any>({
     queryKey: ["/api/projects/approved"],
   });
 
-  const { data: myInvestments = [] } = useQuery({
+  const { data: myInvestments = [] } = useQuery<any>({
     queryKey: ["/api/investments/user"],
   });
 

@@ -25,7 +25,7 @@ export default function AppHeader({ currentRole }: AppHeaderProps) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [] } = useQuery<any>({
     queryKey: ["/api/notifications"],
     enabled: !!user,
   });

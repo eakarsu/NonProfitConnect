@@ -20,15 +20,15 @@ export default function Investments() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm);
 
-  const { data: myInvestments = [] } = useQuery({
+  const { data: myInvestments = [] } = useQuery<any>({
     queryKey: ["/api/investments/user"],
   });
 
-  const { data: approvedProjects = [] } = useQuery({
+  const { data: approvedProjects = [] } = useQuery<any>({
     queryKey: ["/api/projects/approved"],
   });
 
-  const { data: investorStats = {} } = useQuery({
+  const { data: investorStats = {} } = useQuery<any>({
     queryKey: ["/api/stats/investor"],
   });
 

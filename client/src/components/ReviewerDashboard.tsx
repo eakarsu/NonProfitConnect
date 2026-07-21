@@ -13,11 +13,11 @@ export default function ReviewerDashboard() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
-  const { data: stats = {} } = useQuery({
+  const { data: stats = {} } = useQuery<any>({
     queryKey: ["/api/stats/reviewer"],
   });
 
-  const { data: pendingProjects = [] } = useQuery({
+  const { data: pendingProjects = [] } = useQuery<any>({
     queryKey: ["/api/projects/pending"],
   });
 

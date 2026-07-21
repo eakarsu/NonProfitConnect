@@ -15,7 +15,7 @@ export default function Bookmarks() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const { data: bookmarks = [], isLoading } = useQuery({
+  const { data: bookmarks = [], isLoading } = useQuery<any>({
     queryKey: ["/api/bookmarks"],
     enabled: !!user,
   });

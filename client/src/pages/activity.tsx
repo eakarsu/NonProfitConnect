@@ -98,7 +98,7 @@ export default function ActivityPage() {
   const [page, setPage] = useState(1);
   const limit = 50;
 
-  const { data: result, isLoading } = useQuery({
+  const { data: result, isLoading } = useQuery<any>({
     queryKey: [`/api/activity?page=${page}&limit=${limit}`],
     enabled: !!user,
   });

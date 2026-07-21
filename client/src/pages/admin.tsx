@@ -63,11 +63,11 @@ export default function Admin() {
   const [editingRoles, setEditingRoles] = useState<string[]>([]);
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<any>({
     queryKey: ["/api/admin/stats"],
   });
 
-  const { data: users = [], isLoading: usersLoading } = useQuery({
+  const { data: users = [], isLoading: usersLoading } = useQuery<any>({
     queryKey: ["/api/admin/users"],
   });
 

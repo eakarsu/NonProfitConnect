@@ -19,11 +19,11 @@ export default function Applications() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const debouncedSearch = useDebounce(searchTerm);
 
-  const { data: userProjects = [] } = useQuery({
+  const { data: userProjects = [] } = useQuery<any>({
     queryKey: ["/api/projects/user"],
   });
 
-  const { data: pendingProjects = [] } = useQuery({
+  const { data: pendingProjects = [] } = useQuery<any>({
     queryKey: ["/api/projects/pending"],
   });
 

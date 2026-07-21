@@ -11,11 +11,11 @@ export default function ApplicantDashboard() {
   const [, navigate] = useLocation();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
-  const { data: stats = {} } = useQuery({
+  const { data: stats = {} } = useQuery<any>({
     queryKey: ["/api/stats/user"],
   });
 
-  const { data: projects = [] } = useQuery({
+  const { data: projects = [] } = useQuery<any>({
     queryKey: ["/api/projects/user"],
   });
 

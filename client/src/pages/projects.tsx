@@ -49,7 +49,7 @@ export default function Projects() {
     sortOrder,
   }).toString();
 
-  const { data: result, isLoading } = useQuery({
+  const { data: result, isLoading } = useQuery<any>({
     queryKey: [`/api/projects?${queryParams}`],
   });
 

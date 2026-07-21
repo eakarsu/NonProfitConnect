@@ -20,6 +20,7 @@ import {
 } from "./openrouter";
 import { registerNewRoutes } from "./newRoutes";
 import { registerExtraRoutes } from "./extraRoutes";
+import { registerNonprofitOperationsRoutes } from "./nonprofitOperationsRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
@@ -646,6 +647,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch investments" });
     }
   });
+
+  registerNonprofitOperationsRoutes(app, unifiedAuth, getUserId);
 
   const httpServer = createServer(app);
   return httpServer;

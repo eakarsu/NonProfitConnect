@@ -151,7 +151,7 @@ export async function setupMultiAuth(app: Express) {
 
   app.post('/api/auth/register', authLimiter, async (req, res) => {
     try {
-      const { email, password, firstName, lastName, roles } = req.body;
+      const { email, password, firstName, lastName } = req.body;
 
       // Validate password strength
       const passwordResult = passwordSchema.safeParse(password);
@@ -179,7 +179,9 @@ export async function setupMultiAuth(app: Express) {
         firstName,
         lastName,
         provider: 'local',
-        roles: roles || ['applicant'],
+        // Privileged roles and organization memberships are provisioned by an
+        // authenticated organization admin, never chosen during registration.
+        roles: ['applicant'],
         emailVerificationToken: verificationToken,
         emailVerificationExpires: verificationExpires,
       });

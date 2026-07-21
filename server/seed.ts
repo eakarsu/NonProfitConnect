@@ -155,12 +155,17 @@ async function seed() {
   const investableProjects = insertedProjects.filter(p => ["approved", "funded"].includes(p.status));
   const investorIds = ["local_frank", "local_grace", "local_henry", "local_iris", "local_leo", "local_peter", "local_noah"];
 
-  const seedInvestments = [];
+  const seedInvestments: Array<{
+    projectId: number;
+    investorId: string;
+    amount: string;
+    investedAt: Date;
+  }> = [];
   for (const project of investableProjects) {
     // Ensure at least 2 investors per investable project to get 15+
     const numInvestors = Math.floor(Math.random() * 3) + 2;
     for (let i = 0; i < numInvestors; i++) {
-      const investorId = investorIds[(seedInvestments.length + i) % investorIds.length];
+      const investorId: string = investorIds[(seedInvestments.length + i) % investorIds.length]!;
       const goal = Number(project.requestedAmount);
       const amount = Math.round((goal * (Math.random() * 0.3 + 0.1)) * 100) / 100;
       seedInvestments.push({

@@ -995,9 +995,9 @@ Project:
 - Requested Amount: $${project.requestedAmount}
 - Timeline: ${project.timeline}
 
-Investments: ${projectInvestments.length} totaling $${projectInvestments.reduce((sum, inv) => sum + Number(inv.amount), 0)}
-Reviews: ${projectReviews.length} (${projectReviews.filter(r => r.decision === 'approved').length} approved, ${projectReviews.filter(r => r.decision === 'rejected').length} rejected)
-Milestones: ${projectMilestones.length} (${projectMilestones.filter(m => m.status === 'completed').length} completed)
+Investments: ${projectInvestments.length} totaling $${projectInvestments.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0)}
+Reviews: ${projectReviews.length} (${projectReviews.filter((review: any) => review.decision === 'approved').length} approved, ${projectReviews.filter((review: any) => review.decision === 'rejected').length} rejected)
+Milestones: ${projectMilestones.length} (${projectMilestones.filter((milestone: any) => milestone.status === 'completed').length} completed)
 
 Generate a detailed report including: executive summary, funding analysis, progress assessment, risk factors, and recommendations. Format as structured text with clear sections.`;
 
