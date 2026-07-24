@@ -100,6 +100,16 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const aiResults = pgTable("ai_results", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  feature: varchar("feature", { length: 120 }).notNull(),
+  input: jsonb("input").notNull(),
+  output: jsonb("output").notNull(),
+  model: varchar("model", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // ==========================================
 // NEW TABLES
 // ==========================================

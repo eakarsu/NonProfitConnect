@@ -1,4 +1,4 @@
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_API_URL = `${(process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/$/, "")}/chat/completions`;
 
 interface OpenRouterMessage {
   role: "system" | "user" | "assistant";
@@ -11,6 +11,29 @@ interface OpenRouterResponse {
       content: string;
     };
   }>;
+}
+
+function parseModelJson(content: string): any {
+  const normalized = content.trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
+  try {
+    return JSON.parse(normalized);
+  } catch {
+    const objectStart = normalized.indexOf("{");
+    const objectEnd = normalized.lastIndexOf("}");
+    if (objectStart >= 0 && objectEnd > objectStart) {
+      try {
+        return JSON.parse(normalized.slice(objectStart, objectEnd + 1));
+      } catch {
+        // Preserve a substantive provider response even when the model emits
+        // truncated or imperfect JSON; callers still persist the live result.
+        return { content: normalized };
+      }
+    }
+    return { content: normalized };
+  }
 }
 
 export async function callOpenRouter(
@@ -60,7 +83,7 @@ export async function generateProjectDescription(title: string, category: string
       content: `Generate a project description for a nonprofit project titled "${title}" in the "${category}" category.`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function analyzeProject(project: any): Promise<any> {
@@ -74,7 +97,7 @@ export async function analyzeProject(project: any): Promise<any> {
       content: `Analyze this nonprofit project:\nTitle: ${project.title}\nCategory: ${project.category}\nDescription: ${project.description}\nRequested Amount: $${project.requestedAmount}\nTimeline: ${project.timeline}\nPriority: ${project.priority}\nStatus: ${project.status}`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function generateReviewSuggestion(project: any): Promise<any> {
@@ -88,7 +111,7 @@ export async function generateReviewSuggestion(project: any): Promise<any> {
       content: `Review this project application:\nTitle: ${project.title}\nCategory: ${project.category}\nDescription: ${project.description}\nRequested Amount: $${project.requestedAmount}\nTimeline: ${project.timeline}\nPriority: ${project.priority}`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function analyzeInvestmentOpportunity(project: any, fundingStatus: any): Promise<any> {
@@ -102,7 +125,7 @@ export async function analyzeInvestmentOpportunity(project: any, fundingStatus: 
       content: `Analyze this investment opportunity:\nProject: ${project.title}\nCategory: ${project.category}\nDescription: ${project.description}\nFunding Goal: $${project.requestedAmount}\nRaised So Far: $${fundingStatus.total}\nProgress: ${Math.round((fundingStatus.total / fundingStatus.goal) * 100)}%\nTimeline: ${project.timeline}`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function generateProposalDraft(input: { title: string; category: string; targetFunders?: string; budget?: string; timeline?: string; goals?: string }): Promise<any> {
@@ -116,7 +139,7 @@ export async function generateProposalDraft(input: { title: string; category: st
       content: `Draft a grant proposal.\nTitle: ${input.title}\nCategory: ${input.category}\nTarget Funders: ${input.targetFunders || 'general foundations'}\nBudget: ${input.budget || 'unspecified'}\nTimeline: ${input.timeline || 'unspecified'}\nGoals: ${input.goals || 'unspecified'}`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function segmentDonors(donors: any[]): Promise<any> {
@@ -130,7 +153,7 @@ export async function segmentDonors(donors: any[]): Promise<any> {
       content: `Donor sample (${donors.length}):\n${JSON.stringify(donors.slice(0, 50))}`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function matchDonation(donor: any, projects: any[]): Promise<any> {
@@ -144,7 +167,7 @@ export async function matchDonation(donor: any, projects: any[]): Promise<any> {
       content: `Donor:\n${JSON.stringify(donor)}\nProjects (${projects.length}):\n${JSON.stringify(projects.slice(0, 30))}`
     }
   ]);
-  return JSON.parse(content);
+  return parseModelJson(content);
 }
 
 export async function generateProjectSummary(project: any, reviews: any[], investments: any[]): Promise<any> {

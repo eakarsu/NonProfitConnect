@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { setupMultiAuth, isAuthenticated as multiAuthIsAuthenticated } from "./multiAuth";
-import { insertProjectSchema, insertReviewSchema, insertInvestmentSchema, updateProfileSchema } from "@shared/schema";
+import { insertProjectSchema, insertReviewSchema, insertInvestmentSchema, updateProfileSchema, aiResults } from "@shared/schema";
+import { db } from "./db";
 import { z } from "zod";
 import { sanitizeBody } from "./middleware/sanitize";
 import { requireRole } from "./middleware/rbac";
@@ -569,7 +570,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "title and category are required" });
       }
       const result = await generateProposalDraft({ title, category, targetFunders, budget, timeline, goals });
-      res.json(result);
+      const [persisted] = await db.insert(aiResults).values({
+        userId: getUserId(req),
+        feature: 'proposal-draft',
+        input: { title, category, targetFunders, budget, timeline, goals },
+        output: result,
+        model: process.env.OPENROUTER_MODEL || '',
+      }).returning({ id: aiResults.id });
+      res.json({ id: persisted.id, result, model: process.env.OPENROUTER_MODEL });
     } catch (error: any) {
       console.error("AI proposal draft error:", error);
       res.status(500).json({ message: error.message || "AI proposal draft failed" });
