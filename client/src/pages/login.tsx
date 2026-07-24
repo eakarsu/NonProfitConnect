@@ -10,6 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Chrome, Github, Mail, Lock, User, Zap } from "lucide-react";
 import { Link } from "wouter";
 
+const demoPassword = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === "true"
+  ? import.meta.env.VITE_DEMO_PASSWORD || ""
+  : "";
+
 function getPasswordStrength(password: string): { score: number; label: string } {
   let score = 0;
   if (password.length >= 8) score += 25;
@@ -104,9 +108,8 @@ export default function Login() {
                   variant="outline"
                   size="sm"
                   className="text-xs border-blue-200 hover:bg-blue-50 hover:border-blue-300"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, email: "alice@example.com", password: "Password1!" }));
-                  }}
+                  disabled={!demoPassword}
+                  onClick={() => setFormData(prev => ({ ...prev, email: "alice@example.com", password: demoPassword }))}
                 >
                   <Zap className="w-3 h-3 mr-1 text-blue-500" />
                   Applicant
@@ -115,9 +118,8 @@ export default function Login() {
                   variant="outline"
                   size="sm"
                   className="text-xs border-green-200 hover:bg-green-50 hover:border-green-300"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, email: "david@example.com", password: "Password1!" }));
-                  }}
+                  disabled={!demoPassword}
+                  onClick={() => setFormData(prev => ({ ...prev, email: "david@example.com", password: demoPassword }))}
                 >
                   <Zap className="w-3 h-3 mr-1 text-green-500" />
                   Reviewer
@@ -126,9 +128,8 @@ export default function Login() {
                   variant="outline"
                   size="sm"
                   className="text-xs border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, email: "frank@example.com", password: "Password1!" }));
-                  }}
+                  disabled={!demoPassword}
+                  onClick={() => setFormData(prev => ({ ...prev, email: "frank@example.com", password: demoPassword }))}
                 >
                   <Zap className="w-3 h-3 mr-1 text-purple-500" />
                   Investor
@@ -137,9 +138,8 @@ export default function Login() {
                   variant="outline"
                   size="sm"
                   className="text-xs border-orange-200 hover:bg-orange-50 hover:border-orange-300"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, email: "noah@example.com", password: "Password1!" }));
-                  }}
+                  disabled={!demoPassword}
+                  onClick={() => setFormData(prev => ({ ...prev, email: "noah@example.com", password: demoPassword }))}
                 >
                   <Zap className="w-3 h-3 mr-1 text-orange-500" />
                   All Roles

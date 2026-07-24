@@ -3,7 +3,10 @@ import bcrypt from "bcryptjs";
 import { db } from "./db";
 import { users, projects, reviews, investments, notifications, messages, milestones, comments, bookmarks, projectUpdates, activityLog, documents } from "@shared/schema";
 
-const PASSWORD = "Password1!";
+const PASSWORD = process.env.DEMO_PASSWORD;
+if (!PASSWORD || PASSWORD.length < 12) {
+  throw new Error("DEMO_PASSWORD must be at least 12 characters");
+}
 
 async function seed() {
   console.log("Seeding database...");
@@ -461,7 +464,7 @@ async function seed() {
   console.log(`Seeded ${seedDocuments.length} documents.`);
 
   console.log("\nSeeding complete!");
-  console.log("Login with any user email (e.g., alice@example.com) and password: Password1!");
+  console.log("Demo login users provisioned.");
   process.exit(0);
 }
 
