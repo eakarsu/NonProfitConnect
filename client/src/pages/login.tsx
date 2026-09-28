@@ -99,10 +99,19 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Quick Demo Login */}
+          {/* Auto Fill Demo Credentials */}
           {isLogin && (
             <div className="space-y-2">
-              <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wider">Quick Demo Login</p>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={!demoPassword}
+                onClick={() => setFormData(prev => ({ ...prev, email: "alice@example.com", password: demoPassword }))}
+              >
+                Auto Fill Demo Credentials
+              </Button>
+              <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wider">Choose another demo role</p>
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
