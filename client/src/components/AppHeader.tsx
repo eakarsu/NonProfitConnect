@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "wouter";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, recordRows } from "@/lib/queryClient";
 
 interface AppHeaderProps {
   currentRole: string;
@@ -30,7 +30,8 @@ export default function AppHeader({ currentRole }: AppHeaderProps) {
     enabled: !!user,
   });
 
-  const unreadCount = (notifications as any[]).filter((n: any) => !n.read).length;
+  const notificationRows = recordRows<any>(notifications);
+  const unreadCount = notificationRows.filter((n: any) => !n.read).length;
 
   const isActive = (path: string) => location === path;
 
@@ -142,7 +143,7 @@ export default function AppHeader({ currentRole }: AppHeaderProps) {
                     </div>
                   ) : (
                     <div className="divide-y divide-neutral-100">
-                      {(notifications as any[]).slice(0, 10).map((notification: any) => (
+                      {notificationRows.slice(0, 10).map((notification: any) => (
                         <div key={notification.id} className={`px-4 py-3 hover:bg-neutral-50 ${!notification.read ? 'bg-blue-50/50' : ''}`}>
                           <div className="flex items-start space-x-2">
                             <div className="flex-shrink-0 mt-0.5">

@@ -1,9 +1,23 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Record endpoints return either a plain array or a paginated { data: [] } envelope.
+export function recordRows<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) {
+    return payload.data as T[];
+  }
+  return [];
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let message = text;
+    try {
+      const detail = JSON.parse(text);
+      message = typeof detail.message === 'string' ? detail.message : typeof detail.error === 'string' ? detail.error : res.statusText || 'Request failed';
+    } catch { /* Plain service messages are already readable. */ }
+    throw new Error(`${res.status}: ${message}`);
   }
 }
 
@@ -11,9 +25,11 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  signal?: AbortSignal,
 ): Promise<Response> {
   const res = await fetch(url, {
     method,
+    signal,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",

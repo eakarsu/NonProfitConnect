@@ -108,9 +108,9 @@ export default function PublicGallery() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { data: rawData, isLoading, isError } = useQuery<Project[] | { data: Project[] }>({
-    queryKey: ["/api/public/projects"],
+    queryKey: ["/api/public/projects?limit=15"],
     queryFn: async () => {
-      const res = await fetch("/api/public/projects");
+      const res = await fetch("/api/public/projects?limit=15");
       if (!res.ok) throw new Error("Failed to fetch projects");
       return res.json();
     },

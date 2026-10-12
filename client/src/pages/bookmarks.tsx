@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkX, FolderOpen } from "lucide-react";
 import { useLocation } from "wouter";
 import AppHeader from "@/components/AppHeader";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, recordRows } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +19,7 @@ export default function Bookmarks() {
     queryKey: ["/api/bookmarks"],
     enabled: !!user,
   });
+  const bookmarkRows = recordRows<any>(bookmarks);
 
   const removeBookmarkMutation = useMutation({
     mutationFn: async (projectId: number) => {
@@ -86,7 +87,7 @@ export default function Bookmarks() {
               </Card>
             ))}
           </div>
-        ) : bookmarks.length === 0 ? (
+        ) : bookmarkRows.length === 0 ? (
           <div className="text-center py-20">
             <FolderOpen className="h-16 w-16 text-neutral-300 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-neutral-700 mb-2">
@@ -102,7 +103,7 @@ export default function Bookmarks() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(bookmarks as any[]).map((b: any) => {
+            {bookmarkRows.map((b: any) => {
               const title = b.projectTitle || b.project?.title || "Untitled";
               const status = b.projectStatus || b.project?.status || "pending";
               const category = b.projectCategory || b.project?.category;

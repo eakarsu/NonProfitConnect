@@ -38,16 +38,20 @@ function parseModelJson(content: string): any {
 
 export async function callOpenRouter(
   messages: OpenRouterMessage[],
-  maxTokens: number = 1024
+  maxTokens: number = 1024,
+  signal?: AbortSignal
 ): Promise<string> {
+  signal?.throwIfAborted();
   const apiKey = process.env.OPENROUTER_API_KEY;
   const model = process.env.OPENROUTER_MODEL || "anthropic/claude-haiku-4.5";
 
   if (!apiKey || apiKey === "your-openrouter-api-key-here") {
-    throw new Error("OPENROUTER_API_KEY not configured. Please set it in .env file.");
+    throw Object.assign(new Error("OpenRouter is not configured on the server."), { status: 503 });
   }
 
+  const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(120000)]) : AbortSignal.timeout(120000);
   const response = await fetch(OPENROUTER_API_URL, {
+    signal: requestSignal,
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
@@ -64,12 +68,15 @@ export async function callOpenRouter(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+    await response.text();
+    throw Object.assign(new Error(`OpenRouter request failed (HTTP ${response.status}).`), { status: 502 });
   }
 
   const data: OpenRouterResponse = await response.json();
-  return data.choices[0]?.message?.content || "";
+  requestSignal.throwIfAborted();
+  const content = data.choices?.[0]?.message?.content || "";
+  if (!content.trim()) throw Object.assign(new Error("OpenRouter returned an empty response."), { status: 502 });
+  return content;
 }
 
 export async function generateProjectDescription(title: string, category: string): Promise<any> {
@@ -128,7 +135,7 @@ export async function analyzeInvestmentOpportunity(project: any, fundingStatus: 
   return parseModelJson(content);
 }
 
-export async function generateProposalDraft(input: { title: string; category: string; targetFunders?: string; budget?: string; timeline?: string; goals?: string }): Promise<any> {
+export async function generateProposalDraft(input: { title: string; category: string; targetFunders?: string; budget?: string; timeline?: string; goals?: string }, signal?: AbortSignal): Promise<any> {
   const content = await callOpenRouter([
     {
       role: "system",
@@ -138,11 +145,11 @@ export async function generateProposalDraft(input: { title: string; category: st
       role: "user",
       content: `Draft a grant proposal.\nTitle: ${input.title}\nCategory: ${input.category}\nTarget Funders: ${input.targetFunders || 'general foundations'}\nBudget: ${input.budget || 'unspecified'}\nTimeline: ${input.timeline || 'unspecified'}\nGoals: ${input.goals || 'unspecified'}`
     }
-  ]);
+  ], 1024, signal);
   return parseModelJson(content);
 }
 
-export async function segmentDonors(donors: any[]): Promise<any> {
+export async function segmentDonors(donors: any[], criteria?: string, signal?: AbortSignal): Promise<any> {
   const content = await callOpenRouter([
     {
       role: "system",
@@ -150,13 +157,13 @@ export async function segmentDonors(donors: any[]): Promise<any> {
     },
     {
       role: "user",
-      content: `Donor sample (${donors.length}):\n${JSON.stringify(donors.slice(0, 50))}`
+      content: `Segmentation criteria: ${criteria || "Describe donor frequency and recency"}\nDonor sample (${donors.length}):\n${JSON.stringify(donors.slice(0, 50))}`
     }
-  ]);
+  ], 1024, signal);
   return parseModelJson(content);
 }
 
-export async function matchDonation(donor: any, projects: any[]): Promise<any> {
+export async function matchDonation(donor: any, projects: any[], signal?: AbortSignal): Promise<any> {
   const content = await callOpenRouter([
     {
       role: "system",
@@ -166,7 +173,7 @@ export async function matchDonation(donor: any, projects: any[]): Promise<any> {
       role: "user",
       content: `Donor:\n${JSON.stringify(donor)}\nProjects (${projects.length}):\n${JSON.stringify(projects.slice(0, 30))}`
     }
-  ]);
+  ], 1024, signal);
   return parseModelJson(content);
 }
 

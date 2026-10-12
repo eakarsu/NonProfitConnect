@@ -1,3 +1,4 @@
+import { nativeAIRequest, nativeAIError } from './nativeAICancellation';
 import type { Express, RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -5,6 +6,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { setupMultiAuth, isAuthenticated as multiAuthIsAuthenticated } from "./multiAuth";
 import { insertProjectSchema, insertReviewSchema, insertInvestmentSchema, updateProfileSchema, aiResults } from "@shared/schema";
 import { db } from "./db";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { sanitizeBody } from "./middleware/sanitize";
 import { requireRole } from "./middleware/rbac";
@@ -563,13 +565,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI proposal-writing assistant
+  app.get('/api/ai/proposal-history', unifiedAuth, async (req: any, res) => {
+    try {
+      const rows = await db.select({ id: aiResults.id, output: aiResults.output, model: aiResults.model, createdAt: aiResults.createdAt })
+        .from(aiResults)
+        .where(and(eq(aiResults.userId, getUserId(req)), eq(aiResults.feature, 'proposal-draft')))
+        .orderBy(desc(aiResults.createdAt))
+        .limit(20);
+      res.json(rows);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || 'Saved proposal history could not be loaded' });
+    }
+  });
+
   app.post('/api/ai/proposal-draft', unifiedAuth, async (req: any, res) => {
+    const ai = nativeAIRequest(req, res);
     try {
       const { title, category, targetFunders, budget, timeline, goals } = req.body || {};
       if (!title || !category) {
         return res.status(400).json({ message: "title and category are required" });
       }
-      const result = await generateProposalDraft({ title, category, targetFunders, budget, timeline, goals });
+      const result = await generateProposalDraft({ title, category, targetFunders, budget, timeline, goals }, ai.signal);
+      ai.signal.throwIfAborted();
       const [persisted] = await db.insert(aiResults).values({
         userId: getUserId(req),
         feature: 'proposal-draft',
@@ -577,41 +594,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         output: result,
         model: process.env.OPENROUTER_MODEL || '',
       }).returning({ id: aiResults.id });
+      ai.signal.throwIfAborted();
       res.json({ id: persisted.id, result, model: process.env.OPENROUTER_MODEL });
     } catch (error: any) {
       console.error("AI proposal draft error:", error);
-      res.status(500).json({ message: error.message || "AI proposal draft failed" });
-    }
+      nativeAIError(res, ai.signal, error);
+    } finally { ai.close(); }
   });
 
   // AI donor segmentation
   app.post('/api/ai/segment-donors', unifiedAuth, async (req: any, res) => {
+    const ai = nativeAIRequest(req, res);
     try {
-      const { donors } = req.body || {};
+      const { donors, criteria } = req.body || {};
       if (!Array.isArray(donors) || donors.length === 0) {
         return res.status(400).json({ message: "donors (non-empty array) is required" });
       }
-      const result = await segmentDonors(donors);
+      const result = await segmentDonors(donors, criteria, ai.signal);
+      ai.signal.throwIfAborted();
       res.json(result);
     } catch (error: any) {
       console.error("AI segment donors error:", error);
-      res.status(500).json({ message: error.message || "AI donor segmentation failed" });
-    }
+      nativeAIError(res, ai.signal, error);
+    } finally { ai.close(); }
   });
 
   // AI donation matching
   app.post('/api/ai/match-donation', unifiedAuth, async (req: any, res) => {
+    const ai = nativeAIRequest(req, res);
     try {
       const { donor, projects } = req.body || {};
       if (!donor || !Array.isArray(projects)) {
         return res.status(400).json({ message: "donor (object) and projects (array) are required" });
       }
-      const result = await matchDonation(donor, projects);
+      const result = await matchDonation(donor, projects, ai.signal);
+      ai.signal.throwIfAborted();
       res.json(result);
     } catch (error: any) {
       console.error("AI match donation error:", error);
-      res.status(500).json({ message: error.message || "AI donation matching failed" });
-    }
+      nativeAIError(res, ai.signal, error);
+    } finally { ai.close(); }
   });
 
   // AI project summary

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { recordRows } from "@/lib/queryClient";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function getRelativeTime(dateString: string): string {
@@ -103,7 +104,7 @@ export default function ActivityPage() {
     enabled: !!user,
   });
 
-  const activities = result?.data || result || [];
+  const activities = recordRows<any>(result);
   const hasMore = result?.hasMore ?? (Array.isArray(activities) && activities.length === limit);
   const totalPages = result?.totalPages;
 

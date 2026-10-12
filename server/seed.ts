@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { db } from "./db";
 import { users, projects, reviews, investments, notifications, messages, milestones, comments, bookmarks, projectUpdates, activityLog, documents } from "@shared/schema";
 
-const PASSWORD = process.env.DEMO_PASSWORD;
+const PASSWORD = process.env.DEMO_PASSWORD || '';
 if (!PASSWORD || PASSWORD.length < 12) {
   throw new Error("DEMO_PASSWORD must be at least 12 characters");
 }

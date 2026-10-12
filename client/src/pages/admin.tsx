@@ -36,7 +36,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, recordRows } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const ALL_ROLES = ["applicant", "reviewer", "investor", "admin"] as const;
@@ -101,7 +101,7 @@ export default function Admin() {
     },
   });
 
-  const filteredUsers = (users as any[]).filter((user: any) => {
+  const filteredUsers = recordRows<any>(users).filter((user: any) => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     const fullName = `${user.firstName || ""} ${user.lastName || ""}`.toLowerCase();

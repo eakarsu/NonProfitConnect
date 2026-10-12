@@ -7,11 +7,14 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Github, Mail, Lock, User, Zap } from "lucide-react";
+import { Chrome, Github, Mail, Lock, User } from "lucide-react";
 import { Link } from "wouter";
 
 const demoPassword = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === "true"
   ? import.meta.env.VITE_DEMO_PASSWORD || ""
+  : "";
+const demoEmail = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === "true"
+  ? import.meta.env.VITE_DEMO_EMAIL || ""
   : "";
 
 function getPasswordStrength(password: string): { score: number; label: string } {
@@ -99,61 +102,19 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Auto Fill Demo Credentials */}
+          {/* Configured local demo account: filling credentials never submits. */}
           {isLogin && (
             <div className="space-y-2">
               <Button
                 type="button"
                 variant="outline"
                 className="w-full"
-                disabled={!demoPassword}
-                onClick={() => setFormData(prev => ({ ...prev, email: "alice@example.com", password: demoPassword }))}
+                disabled={!demoEmail || !demoPassword}
+                onClick={() => setFormData(prev => ({ ...prev, email: demoEmail, password: demoPassword }))}
               >
-                Auto Fill Demo Credentials
+                Fill demo credentials
               </Button>
-              <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wider">Choose another demo role</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-blue-200 hover:bg-blue-50 hover:border-blue-300"
-                  disabled={!demoPassword}
-                  onClick={() => setFormData(prev => ({ ...prev, email: "alice@example.com", password: demoPassword }))}
-                >
-                  <Zap className="w-3 h-3 mr-1 text-blue-500" />
-                  Applicant
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-green-200 hover:bg-green-50 hover:border-green-300"
-                  disabled={!demoPassword}
-                  onClick={() => setFormData(prev => ({ ...prev, email: "david@example.com", password: demoPassword }))}
-                >
-                  <Zap className="w-3 h-3 mr-1 text-green-500" />
-                  Reviewer
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-                  disabled={!demoPassword}
-                  onClick={() => setFormData(prev => ({ ...prev, email: "frank@example.com", password: demoPassword }))}
-                >
-                  <Zap className="w-3 h-3 mr-1 text-purple-500" />
-                  Investor
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-orange-200 hover:bg-orange-50 hover:border-orange-300"
-                  disabled={!demoPassword}
-                  onClick={() => setFormData(prev => ({ ...prev, email: "noah@example.com", password: demoPassword }))}
-                >
-                  <Zap className="w-3 h-3 mr-1 text-orange-500" />
-                  All Roles
-                </Button>
-              </div>
+              {(!demoEmail || !demoPassword) && <p className="text-xs text-muted-foreground">Demo credentials are not configured for this session. Sign in with your own account.</p>}
             </div>
           )}
 

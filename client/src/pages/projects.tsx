@@ -17,7 +17,7 @@ import { usePagination } from "@/hooks/usePagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useBulkSelect } from "@/hooks/useBulkSelect";
 import { downloadCSV } from "@/lib/exportUtils";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, recordRows } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -25,7 +25,7 @@ export default function Projects() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { page, limit, goToPage, resetPage } = usePagination(12);
+  const { page, limit, goToPage, resetPage } = usePagination(15);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -53,7 +53,7 @@ export default function Projects() {
     queryKey: [`/api/projects?${queryParams}`],
   });
 
-  const projects = result?.data || [];
+  const projects = recordRows<any>(result);
   const totalPages = result?.totalPages || 1;
 
   const bulkDeleteMutation = useMutation({
