@@ -10,13 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Chrome, Github, Mail, Lock, User } from "lucide-react";
 import { Link } from "wouter";
 
-const demoPassword = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === "true"
-  ? import.meta.env.VITE_DEMO_PASSWORD || ""
-  : "";
-const demoEmail = import.meta.env.VITE_ENABLE_DEMO_CREDENTIAL_AUTOFILL === "true"
-  ? import.meta.env.VITE_DEMO_EMAIL || ""
-  : "";
-
 function getPasswordStrength(password: string): { score: number; label: string } {
   let score = 0;
   if (password.length >= 8) score += 25;
@@ -102,22 +95,6 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Configured local demo account: filling credentials never submits. */}
-          {isLogin && (
-            <div className="space-y-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                disabled={!demoEmail || !demoPassword}
-                onClick={() => setFormData(prev => ({ ...prev, email: demoEmail, password: demoPassword }))}
-              >
-                Fill demo credentials
-              </Button>
-              {(!demoEmail || !demoPassword) && <p className="text-xs text-muted-foreground">Demo credentials are not configured for this session. Sign in with your own account.</p>}
-            </div>
-          )}
-
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
@@ -264,7 +241,8 @@ export default function Login() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
             </Button>
-          </form>
+          <button type="button" onClick={(e) => { e.preventDefault(); const f = e.currentTarget.closest('form'); const set = (el, v) => { if (!el) return; const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value'); if (d && d.set) d.set.call(el, v); else el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }; set(f && f.querySelector('input[type="email"],input[name*="email" i]') as HTMLInputElement, 'admin@demo.local'); set(f && f.querySelector('input[type="password"]') as HTMLInputElement, 'Demo!23456'); }>Log In as Demo</button>
+        </form>
 
           <div className="text-center text-sm">
             <span className="text-muted-foreground">

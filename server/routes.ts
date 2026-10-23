@@ -24,6 +24,7 @@ import {
 import { registerNewRoutes } from "./newRoutes";
 import { registerExtraRoutes } from "./extraRoutes";
 import { registerNonprofitOperationsRoutes } from "./nonprofitOperationsRoutes";
+import * as featureAi from "./featureAi";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
@@ -491,6 +492,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to export investments" });
     }
   });
+
+  // Wave 1B: authenticated tasks + JSON export (CSV/search/AI already exist above).
+  const { taskStore } = await import("./wave1b");
+  app.get("/api/tasks", unifiedAuth, (req: any, res) => res.json({ data: taskStore.list(getUserId(req), req.query) }));
+  app.post("/api/tasks", unifiedAuth, sanitizeBody, (req: any, res) => { try { return res.status(201).json({ task: taskStore.create(getUserId(req), req.body || {}) }); } catch (e: any) { return res.status(e.status || 400).json({ message: e.message, code: e.code || "VALIDATION_ERROR" }); } });
+  app.patch("/api/tasks/:id", unifiedAuth, sanitizeBody, (req: any, res) => { try { const task = taskStore.update(getUserId(req), req.params.id, req.body || {}); return task ? res.json({ task }) : res.status(404).json({ message: "Task not found" }); } catch (e: any) { return res.status(e.status || 400).json({ message: e.message, code: e.code || "VALIDATION_ERROR" }); } });
+  app.get("/api/export/projects/json", unifiedAuth, exportLimiter, async (req: any, res) => { try { const all = await storage.getAllProjects(); return res.json({ data: all, total: all.length }); } catch { return res.status(500).json({ message: "Failed to export projects" }); } });
+
+  // Feature-pack AI: deterministic fallback (aiGenerated:false) unless a provider key is configured.
+  const featureAiHandler = (feature: string, fallback: (rows: any[]) => any, label: string) => async (_req: any, res: any) => {
+    try { const rows: any[] = await storage.getAllProjects(); if (!featureAi.hasProvider()) return res.json(fallback(rows)); return res.json(await featureAi.callProvider(feature, `${label}\nRecords: ${JSON.stringify(rows).slice(0, 6000)}`)); }
+    catch (e: any) { return res.status(e.status || 500).json({ message: e.message || "AI request failed" }); }
+  };
+  app.post("/api/feature/ai/project-health", unifiedAuth, featureAiHandler("project-health", featureAi.fallbackProjectHealth, "Summarise nonprofit project health"));
+  app.post("/api/feature/ai/funding-focus", unifiedAuth, featureAiHandler("funding-focus", featureAi.fallbackFundingFocus, "Summarise nonprofit funding focus"));
+  app.post("/api/feature/ai/review-queue", unifiedAuth, featureAiHandler("review-queue", featureAi.fallbackReviewQueue, "Summarise nonprofit review queue"));
 
   // Register all new feature routes
   registerNewRoutes(app, unifiedAuth, getUserId);
